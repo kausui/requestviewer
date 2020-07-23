@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Request Viewer</title>
+</head>
+<body>
+    <p>Client IP ADDR:{{ clientip }}</p>
+    <p>Server Port:{{ serverport }}</p>
+    <p>Path:{{ path }}</p>
+    <p>Method:{{ method }}</p>
+    {% for key,value in headers.items %}
+        <p>{{key}}:{{value}}</p>
+    {% endfor %}
+</body>
+</html>
