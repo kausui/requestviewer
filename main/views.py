@@ -19,7 +19,7 @@ class IndexView(generic.CreateView):
     def post(self, request, *args, **kwargs):
         context = self.prepare_context(request)
         self.sleep(request)
-        context['post'] = dict(request.POST)
+        context['post'] = request.POST
 
         return render(request, 'index.html', context)
 
