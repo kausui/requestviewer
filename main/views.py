@@ -52,9 +52,9 @@ class IndexView(generic.CreateView):
         print(context['headers'])
 
         # Sleep
-        if "sleep" in request.POST:
+        if "sleep" in request.GET:
             print("Sleep option")
-            sleep_val_str = request.POST.get("sleep")
+            sleep_val_str = request.GET.get('sleep')
             if sleep_val_str.isdigit():
                 sleep_value = int(sleep_val_str)
                 if sleep_value > 0:
