@@ -9,7 +9,11 @@
     <p>Server Port:{{ serverport }}</p>
     <p>Path:{{ path }}</p>
     <p>Method:{{ method }}</p>
+    <hr>
     {% for key,value in headers.items %}
+        <p>{{key}}:{{value}}</p>
+    {% endfor %}
+    {% for key,value in post.items %}
         <p>{{key}}:{{value}}</p>
     {% endfor %}
 </body>
