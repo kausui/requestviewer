@@ -5,7 +5,6 @@ from django.http import Http404
 import time
 # Create your views here.
 class IndexView(generic.CreateView):
-
     def get(self, request, *args, **kwargs):
         print(request.META['REMOTE_ADDR'])
         print(request.META['SERVER_PORT'])
@@ -38,8 +37,31 @@ class IndexView(generic.CreateView):
         return render(request, 'index.html', context)
 
     def post(self, request, *args, **kwargs):
-        pass
+        print(request.META['REMOTE_ADDR'])
+        print(request.META['SERVER_PORT'])
+        print(request.method)
+        print(request.path)
+        print(request.headers)
 
+        context = dict()
+        context['clientip'] = request.META['REMOTE_ADDR']
+        context['serverport'] = request.META['SERVER_PORT']
+        context['path'] = request.path
+        context['method'] = request.method
+        context['headers'] = dict(request.headers)
+        print(context['headers'])
+
+        # Sleep
+        if "sleep" in request.POST:
+            print("Sleep option")
+            sleep_val_str = request.POST.get("sleep")
+            if sleep_val_str.isdigit():
+                sleep_value = int(sleep_val_str)
+                if sleep_value > 0:
+                    print("Sleep ", sleep_value, "seconds")
+                    time.sleep(sleep_value)
+
+        return render(request, 'index.html', context)
 
 class PageNotFoundView(generic.CreateView):
     def get(self, request, *args, **kwargs):
