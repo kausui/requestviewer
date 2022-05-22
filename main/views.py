@@ -19,6 +19,7 @@ class IndexView(generic.CreateView):
     def post(self, request, *args, **kwargs):
         context = self.prepare_context(request)
         self.sleep(request)
+        self.post_sleep(request)
         context['post'] = request.POST
 
         return render(request, 'index.html', context)
@@ -38,6 +39,16 @@ class IndexView(generic.CreateView):
         if "sleep" in request.GET:
             print("Sleep option")
             sleep_val_str = request.GET.get("sleep")
+            if sleep_val_str.isdigit():
+                sleep_value = int(sleep_val_str)
+                if sleep_value > 0:
+                    print("Sleep ", sleep_value, "seconds")
+                    time.sleep(sleep_value)
+
+    def post_sleep(self, request):
+        if "sleep" in request.POST:
+            print("POST Sleep option")
+            sleep_val_str = request.POST.get("sleep")
             if sleep_val_str.isdigit():
                 sleep_value = int(sleep_val_str)
                 if sleep_value > 0:
