@@ -2,10 +2,12 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import generic
 from django.http import Http404
+import datetime
 import time
 # Create your views here.
 class IndexView(generic.CreateView):
     def get(self, request, *args, **kwargs):
+        dt_start = self.log_start()
         context = self.prepare_context(request)
 
         # basic authentication(todo)
@@ -17,10 +19,18 @@ class IndexView(generic.CreateView):
         return render(request, 'index.html', context)
 
     def post(self, request, *args, **kwargs):
+        dt_start = self.log_start()
+
         context = self.prepare_context(request)
         self.sleep(request)
         self.post_sleep(request)
         context['post'] = request.POST
+
+        # File upload case
+        print(request.FILES)
+        if 'fileupload' in request.FILES:
+            tmp_file = request.FILES['fileupload']
+            print("Uploaded: ", tmp_file)
 
         return render(request, 'index.html', context)
 
@@ -35,6 +45,10 @@ class IndexView(generic.CreateView):
 
         return context
 
+    def log_start(self):
+        dt_now = datetime.datetime.now()
+        print("[", dt_now, "] Process Start")
+
     def sleep(self, request):
         if "sleep" in request.GET:
             print("Sleep option")
@@ -47,9 +61,9 @@ class IndexView(generic.CreateView):
 
     def post_sleep(self, request):
         if "sleep" in request.POST:
-            print("POST Sleep option")
             sleep_val_str = request.POST.get("sleep")
             if sleep_val_str.isdigit():
+                print("POST Sleep option")
                 sleep_value = int(sleep_val_str)
                 if sleep_value > 0:
                     print("Sleep ", sleep_value, "seconds")
