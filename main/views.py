@@ -27,10 +27,10 @@ class IndexView(generic.CreateView):
         context['post'] = request.POST
 
         # File upload case
-        print(request.FILES)
         if 'fileupload' in request.FILES:
             tmp_file = request.FILES['fileupload']
             print("Uploaded: ", tmp_file)
+            # filesize(todo)
 
         return render(request, 'index.html', context)
 
@@ -48,6 +48,8 @@ class IndexView(generic.CreateView):
     def log_start(self):
         dt_now = datetime.datetime.now()
         print("[", dt_now, "] Process Start")
+
+        return dt_now
 
     def sleep(self, request):
         if "sleep" in request.GET:
