@@ -3,6 +3,9 @@ from django.shortcuts import render, get_object_or_404
 from django.views import generic
 from django.http import Http404
 import time
+COOKIE_KEY = 'REQUEST_VIEWER_COOKIE'
+COOKIE_VALUE = 'cookie-12345'
+COOKIE_AGE_SECOND = 1800
 # Create your views here.
 class IndexView(generic.CreateView):
     def get(self, request, *args, **kwargs):
@@ -23,7 +26,15 @@ class IndexView(generic.CreateView):
                     status_code = status_value
 
         # websocket(todo)
-        return render(request, 'index.html', context, status=status_code)
+        response = render(request, 'index.html', context, status=status_code)
+        # Set cookie
+        try:
+            cookie_value = request.COOKIES[COOKIE_KEY]
+            print("Cookie: ", cookie_value)
+        except KeyError:
+            response.set_cookie(COOKIE_KEY, COOKIE_VALUE, COOKIE_AGE_SECOND)
+
+        return response
 
     def post(self, request, *args, **kwargs):
         context = self.prepare_context(request)
