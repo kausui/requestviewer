@@ -27,6 +27,10 @@ class IndexView(generic.CreateView):
 
         # websocket(todo)
         response = render(request, 'index.html', context, status=status_code)
+
+        if "no-content-type" in request.GET:
+            print("No content-type option")
+            del response["Content-Type"]
         # Set cookie
         try:
             cookie_value = request.COOKIES[COOKIE_KEY]
