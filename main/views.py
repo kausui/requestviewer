@@ -1,8 +1,10 @@
 from django.http import HttpResponseRedirect
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.views import generic
 from django.http import Http404
 from django.conf import settings
+import base64
 import time
 COOKIE_KEY = 'REQUEST_VIEWER_COOKIE'
 COOKIE_VALUE = 'cookie-12345'
@@ -15,18 +17,25 @@ class IndexView(generic.CreateView):
         status_code = 200
         # basic authentication(todo)
         if BASIC_AUTH_PATH in request.path:
-            if not request.META.has_key('HTTP_AUTHORIZATION'):
-                return self.unauthed()
-            else:
+            if 'HTTP_AUTHORIZATION' in request.META:
+                print("Basic auth start.")
                 authentication = request.META['HTTP_AUTHORIZATION']
                 (authmeth, auth) = authentication.split(' ', 1)
                 if 'basic' != authmeth.lower():
                     return self.unauthed()
-                auth = auth.strip().decode('base64')
+                print(auth.strip())
+                auth = base64.b64decode(auth.strip()).decode()
+                print(auth)
                 username, password = auth.split(':', 1)
                 if username == settings.BASICAUTH_USERNAME and password == settings.BASICAUTH_PASSWORD:
-                    return None
+                    print("Basic auth OK.")
+                    pass
+                else:
+                    print("Basic auth FAIL.")
+                    return HttpResponse('Unauthorized', status=401)
+            else:
                 return self.unauthed()
+
 
         self.sleep(request)
 
@@ -104,6 +113,12 @@ class IndexView(generic.CreateView):
                 if status_value > 0:
                     print("Status Code: ", status_value)
                     return status_value
+
+    def unauthed(self):
+        response = HttpResponse("<html><title>Auth required</title><body><h1>Authorization Required</h1></body></html>", content_type="text/html")
+        response['WWW-Authenticate'] = 'Basic realm="Development"'
+        response.status_code = 401
+        return response
 
 class PageNotFoundView(generic.CreateView):
     def get(self, request, *args, **kwargs):
