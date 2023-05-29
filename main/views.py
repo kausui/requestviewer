@@ -2,17 +2,31 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import generic
 from django.http import Http404
+from django.conf import settings
 import time
 COOKIE_KEY = 'REQUEST_VIEWER_COOKIE'
 COOKIE_VALUE = 'cookie-12345'
 COOKIE_AGE_SECOND = 1800
+BASIC_AUTH_PATH = 'basicauth/'
 # Create your views here.
 class IndexView(generic.CreateView):
     def get(self, request, *args, **kwargs):
         context = self.prepare_context(request)
         status_code = 200
         # basic authentication(todo)
-        # if "auth" in request.GET:
+        if BASIC_AUTH_PATH in request.path:
+            if not request.META.has_key('HTTP_AUTHORIZATION'):
+                return self.unauthed()
+            else:
+                authentication = request.META['HTTP_AUTHORIZATION']
+                (authmeth, auth) = authentication.split(' ', 1)
+                if 'basic' != authmeth.lower():
+                    return self.unauthed()
+                auth = auth.strip().decode('base64')
+                username, password = auth.split(':', 1)
+                if username == settings.BASICAUTH_USERNAME and password == settings.BASICAUTH_PASSWORD:
+                    return None
+                return self.unauthed()
 
         self.sleep(request)
 
@@ -94,4 +108,3 @@ class IndexView(generic.CreateView):
 class PageNotFoundView(generic.CreateView):
     def get(self, request, *args, **kwargs):
         raise Http404
-

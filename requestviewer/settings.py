@@ -27,6 +27,9 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
+# Basic authentication
+BASICAUTH_USERNAME = 'user'
+BASICAUTH_PASSWORD = '12345678'
 
 # Application definition
 
@@ -41,6 +44,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'app.module.BasicAuthMiddleware',
     "django.middleware.gzip.GZipMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
