@@ -15,7 +15,8 @@ class IndexView(generic.CreateView):
     def get(self, request, *args, **kwargs):
         context = self.prepare_context(request)
         status_code = 200
-        # basic authentication(todo)
+
+        # Basic authentication
         if BASIC_AUTH_PATH in request.path:
             if 'HTTP_AUTHORIZATION' in request.META:
                 print("Basic auth start.")
@@ -35,7 +36,6 @@ class IndexView(generic.CreateView):
                     return HttpResponse('Unauthorized', status=401)
             else:
                 return self.unauthed()
-
 
         self.sleep(request)
 
