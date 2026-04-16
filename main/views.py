@@ -1,15 +1,45 @@
-from django.http import HttpResponseRedirect
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.template.loader import render_to_string
 from django.views import generic
 from django.http import Http404
 from django.conf import settings
+from http.cookies import SimpleCookie
 import base64
 import time
 COOKIE_KEY = 'REQUEST_VIEWER_COOKIE'
 COOKIE_VALUE = 'cookie-12345'
 COOKIE_AGE_SECOND = 1800
 BASIC_AUTH_PATH = 'basicauth/'
+
+
+class ExtendedStatusHttpResponse(HttpResponse):
+    def __init__(self, content=b'', content_type=None, status=None, reason=None, charset=None):
+        self._headers = {}
+        self._resource_closers = []
+        self._handler_class = None
+        self.cookies = SimpleCookie()
+        self.closed = False
+        if status is not None:
+            try:
+                self.status_code = int(status)
+            except (ValueError, TypeError):
+                raise TypeError('HTTP status code must be an integer.')
+        self._reason_phrase = reason
+        self._charset = charset
+        if content_type is None:
+            content_type = 'text/html; charset=%s' % self.charset
+        self['Content-Type'] = content_type
+        self.content = content
+
+
+def render_with_extended_status(request, template_name, context=None, content_type=None, status=None):
+    context = context or {}
+    content = render_to_string(template_name, context, request=request)
+    if status is not None and int(status) > 599:
+        return ExtendedStatusHttpResponse(content, content_type=content_type, status=status)
+    return HttpResponse(content, content_type=content_type, status=status)
+
+
 # Create your views here.
 class IndexView(generic.CreateView):
     def get(self, request, *args, **kwargs):
@@ -49,7 +79,7 @@ class IndexView(generic.CreateView):
                     status_code = status_value
 
         # websocket(todo)
-        response = render(request, 'index.html', context, status=status_code)
+        response = render_with_extended_status(request, 'index.html', context, status=status_code)
 
         if "no-content-type" in request.GET:
             print("No content-type option")
@@ -71,7 +101,7 @@ class IndexView(generic.CreateView):
         status_code = self.post_status(request)
         context['post'] = request.POST
 
-        return render(request, 'index.html', context, status=status_code)
+        return render_with_extended_status(request, 'index.html', context, status=status_code)
 
     def prepare_context(self, request):
         context = dict()
